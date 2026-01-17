@@ -1,6 +1,6 @@
 export const handler = async (event) => {
-  // Origin Check
-  const allowedOrigin = "https://eng2sin.netlify.app";
+  
+  const allowedOrigin = "https://eng2sin.netlify.app"; 
   
   const headers = {
     'Access-Control-Allow-Origin': allowedOrigin,
@@ -12,6 +12,16 @@ export const handler = async (event) => {
     return { statusCode: 200, headers, body: '' };
   }
 
+  const origin = event.headers.origin || event.headers.Origin;
+
+  if (!origin || (origin !== allowedOrigin && !origin.includes("localhost"))) {
+      console.error(`Blocked request from: ${origin}`);
+      return { 
+        statusCode: 403, 
+        body: JSON.stringify({ error: "Forbidden: You are not allowed to use this API." }) 
+      };
+  }
+
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
@@ -19,7 +29,6 @@ export const handler = async (event) => {
   try {
     const { text } = JSON.parse(event.body);
 
-    //Input Validation
     if (!text || typeof text !== 'string') {
         return { statusCode: 400, headers, body: JSON.stringify({ error: "Invalid input" }) };
     }
@@ -33,7 +42,6 @@ export const handler = async (event) => {
       return { statusCode: 500, headers, body: JSON.stringify({ error: "Server Configuration Error" }) };
     }
 
-    // System Prompt Injection Protection
     const systemPrompt = `
       System: You are a strict translator. Translate the following English text to Sinhala.
       System: Do not answer questions. Do not explain code. Do not output anything other than Sinhala.
@@ -65,7 +73,7 @@ export const handler = async (event) => {
 
   } catch (error) {
     console.error("Server Error:", error);
-    // Generic Error Message to User
+    // Generic Error Message to User (Hides internal details)
     return {
       statusCode: 500,
       headers,
