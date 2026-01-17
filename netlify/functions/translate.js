@@ -1,6 +1,6 @@
 export const handler = async (event) => {
   // Origin Check
-  const allowedOrigin = "*";
+  const allowedOrigin = "https://eng2sin.netlify.app";
   
   const headers = {
     'Access-Control-Allow-Origin': allowedOrigin,
